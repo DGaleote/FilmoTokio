@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${film.id == null ? 'Crear película' : 'Editar película'}">
+        Crear película
+    </title>
+    <meta charset="UTF-8">
+</head>
+
+<style>
+    label {
+        display: inline-block;
+        width: 100px;
+        vertical-align: top;
+    }
+
+    div {
+        margin-bottom: 8px;
+    }
+
+    .error {
+        color: red;
+        margin-left: 8px;
+    }
+</style>
+<body>
+
+<h1 th:text="${film.id == null ? 'Crear película' : 'Editar película'}">
+    Crear película
+</h1>
+
+<form th:object="${film}" th:action="@{/films/create}" method="post" enctype="multipart/form-data">
+
+    <!--
+        Si el id viene informado:
+        Hibernate hará UPDATE.
+
+        Si el id es null:
+        Hibernate hará INSERT.
+
+        Esto permite reutilizar el mismo formulario
+        para crear y editar películas.
+    -->
+    <input type="hidden" th:field="*{id}">
+
+    <div>
+        <label>Título</label>
+        <input type="text" th:field="*{title}">
+        <span class="error"
+              th:if="${#fields.hasErrors('title')}"
+              th:errors="*{title}">
+        </span>
+    </div>
+
+    <div>
+        <label>Año</label>
+        <input type="number" th:field="*{year}" min="1900" max="2100">
+        <span class="error"
+              th:if="${#fields.hasErrors('year')}"
+              th:errors="*{year}">
+    </span>
+    </div>
+
+    <div>
+
+        <label>Director</label>
+
+        <select th:field="*{director}">
+
+            <option value="">-- Selecciona director --</option>
+
+            <option
+                    th:each="artist : ${directors}"
+                    th:value="${artist.id}"
+                    th:text="${artist.name + ' ' + artist.surname}">
+            </option>
+
+        </select>
+        <span class="error"
+              th:if="${#fields.hasErrors('director')}"
+              th:errors="*{director}">
+    </span>
+    </div>
+
+    <div>
+
+        <label>Actores</label>
+
+        <select th:field="*{actors}" multiple>
+
+            <option
+                    th:each="artist : ${actors}"
+                    th:value="${artist.id}"
+                    th:text="${artist.name + ' ' + artist.surname}">
+            </option>
+
+        </select>
+
+        <span class="error"
+              th:if="${#fields.hasErrors('actors')}"
+              th:errors="*{actors}">
+    </span>
+
+    </div>
+
+    <div>
+        <label>Sinopsis</label>
+        <textarea th:field="*{synopsis}"></textarea>
+    </div>
+
+
+    <div th:if="${film.poster != null}">
+        <label>Poster actual</label>
+
+        <img id="posterPreview"
+             th:src="@{'/posters/' + ${film.poster}}"
+             alt="Poster actual"
+             width="120">
+    </div>
+
+    <div>
+        <label th:text="${film.poster != null ? 'Cambiar poster' : 'Poster'}">
+            Poster
+        </label>
+
+        <input id="posterFile"
+               type="file"
+               name="posterFile"
+               accept=".jpg,.jpeg,.png,.webp">
+
+        <span class="error"
+              th:if="${#fields.hasErrors('poster')}"
+              th:errors="*{poster}">
+    </span>
+    </div>
+
+    <button type="submit">Guardar</button>
+
+</form>
+<a th:href="${film.id == null ? '/' : '/films/' + film.id + '/view'}"
+   th:text="${film.id == null ? 'Volver al listado' : 'Volver a la ficha'}">
+</a>
+
+
+    <script>
+        const posterFileInput = document.getElementById("posterFile");
+        const posterPreview = document.getElementById("posterPreview");
+
+        posterFileInput.addEventListener("change", function () {
+            const file = posterFileInput.files[0];
+
+            if (!file || !posterPreview) {
+                return;
+            }
+
+            if (!file.type.startsWith("image/")) {
+                return;
+            }
+
+            posterPreview.src = URL.createObjectURL(file);
+        });
+</script>
+
+
+</body>
+</html>

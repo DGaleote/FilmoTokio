@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Detalle película</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<div style="display: flex; gap: 20px; align-items: flex-start;">
+<img th:if="${film.poster != null}"
+     th:src="@{'/posters/' + ${film.poster}}"
+     alt="Poster"
+     width="250">
+<div>
+    <h1 th:text="${film.title}"></h1>
+    <div th:if="${ratingsAvailable}">
+        <p>
+            Valoración media:
+            <span th:if="${ratingAverage.ratings == 0}">--</span>
+            <span th:if="${ratingAverage.ratings > 0}"
+                  th:text="${ratingAverage.average}"></span>
+        </p>
+
+        <p th:if="${userRating != null}">
+            Tu valoración:
+            <span th:text="${userRating.score}"></span>
+        </p>
+
+        <p th:if="${userRating == null}">
+            Todavía no has valorado esta película.
+        </p>
+
+        <form th:if="${userRating == null}"
+              th:action="@{/films/{id}/ratings(id=${film.id})}"
+              method="post">
+
+            <label for="score">Valoración:</label>
+
+            <select id="score" name="score" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+
+            <button type="submit">Valorar</button>
+        </form>
+    </div>
+
+    <div th:if="${ratingsAvailable == false}">
+        <p style="color: red;">
+            El servicio de valoraciones no está disponible en este momento.
+        </p>
+    </div>
+
+
+<p>
+    Año:
+    <span th:text="${film.year}"></span>
+</p>
+
+<p>
+    Director:
+    <span th:text="${film.director}"></span>
+</p>
+
+<p>
+    Sinopsis:
+    <span th:text="${film.synopsis}"></span>
+</p>
+
+<h2>Actores</h2>
+
+<ul>
+    <li th:each="actor : ${film.actors}"
+        th:text="${actor}">
+    </li>
+</ul>
+
+    <a sec:authorize="hasRole('ADMIN')"
+       th:href="@{/films/{id}/edit(id=${film.id})}">
+        Editar película
+    </a>
+
+<br>
+<a th:href="@{/}">
+    Volver al listado
+</a>
+</div>
+</div>
+</body>
+</html>

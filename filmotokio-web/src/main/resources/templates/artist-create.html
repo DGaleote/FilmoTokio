@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${artist.id == null ? 'Crear artista' : 'Editar artista'}">
+        Crear artista
+    </title>
+    <meta charset="UTF-8">
+</head>
+
+
+<style>
+    label {
+        display: inline-block;
+        width: 90px;
+        vertical-align: top;
+    }
+
+    div {
+        margin-bottom: 8px;
+    }
+
+    .error {
+        color: red;
+        margin-left: 8px;
+    }
+</style>
+<body>
+
+<h1 th:text="${artist.id == null ? 'Crear artista' : 'Editar artista'}">
+    Crear artista
+</h1>
+
+<form th:action="@{/artists/create}" th:object="${artist}" method="post">
+
+    <input type="hidden" th:field="*{id}">
+
+    <div>
+        <label>Nombre</label>
+        <input type="text" th:field="*{name}">
+
+        <span class="error"
+              th:if="${#fields.hasErrors('name')}"
+              th:errors="*{name}">
+    </span>
+    </div>
+
+    <div>
+        <label>Apellidos:</label>
+        <input type="text" th:field="*{surname}">
+
+        <span class="error"
+              th:if="${#fields.hasErrors('surname')}"
+              th:errors="*{surname}">
+    </span>
+    </div>
+
+    <div>
+        <label>Tipo:</label>
+        <select th:field="*{type}">
+            <option value="ACTOR">ACTOR</option>
+            <option value="DIRECTOR">DIRECTOR</option>
+        </select>
+
+        <span class="error"
+              th:if="${#fields.hasErrors('type')}"
+              th:errors="*{type}">
+    </span>
+    </div>
+
+    <button type="submit">Guardar</button>
+
+</form>
+
+<a th:href="@{/artists}"
+   th:text="${artist.id == null ? 'Volver al listado de artistas' : 'Volver a artistas'}">
+</a>
+
+</body>
+</html>

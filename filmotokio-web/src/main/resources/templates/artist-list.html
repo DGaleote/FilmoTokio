@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Listado artistas</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<h1>Listado artistas</h1>
+
+<ul>
+    <li th:each="artist : ${artists}">
+
+        <span th:text="${artist.name}"></span>
+
+        <span th:text="${artist.surname}"></span>
+
+        <span th:text="${artist.type}"></span>
+
+        </form>
+
+        <a sec:authorize="hasRole('ADMIN')"
+           th:href="@{/artists/{id}/edit(id=${artist.id})}">
+            Editar
+        </a>
+
+        <form sec:authorize="hasRole('ADMIN')"
+              th:action="@{/artists/{id}/delete(id=${artist.id})}"
+              method="post">
+
+            <button type="submit" onclick="return confirm('¿Seguro que quieres borrar este artista?');">Borrar</button>
+
+        </form>
+
+    </li>
+
+</ul>
+
+<a th:href="@{/artists/create}">Crear artista</a>
+
+<p><a th:href="@{/}">Volver a películas</a></p>
+</body>
+</html>

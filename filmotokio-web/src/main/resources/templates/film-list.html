@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Filmotokio</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+
+<body>
+
+<div>
+    <span sec:authorize="isAuthenticated()">
+        Usuario:
+        <strong sec:authentication="name"></strong>
+    </span>
+
+    <span sec:authorize="isAuthenticated()">
+        |
+        <a th:href="@{/logout}">Cerrar sesión</a>
+    </span>
+
+    <span sec:authorize="!isAuthenticated()">
+        <a th:href="@{/login}">Login</a>
+        |
+        <a th:href="@{/register}">Registro</a>
+    </span>
+</div>
+
+<hr>
+
+<h1>Listado de películas</h1>
+<form th:action="@{/}" method="get">
+    <input type="text"
+           name="search"
+           placeholder="Buscar por título">
+
+    <button type="submit">Buscar</button>
+
+    <a th:href="@{/}">Limpiar</a>
+</form>
+<ul>
+    <li th:each="film : ${films}">
+
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+
+        <img th:if="${film.poster != null}"
+             th:src="@{'/posters/' + ${film.poster}}"
+             alt="Poster"
+             width="80">
+
+        <span>
+            <a th:href="@{/films/{id}/view(id=${film.id})}"
+               th:text="${film.title}">
+            </a>
+        </span>(<span th:text="${film.year}"></span>)
+
+
+            <form sec:authorize="hasRole('ADMIN')"
+                  th:action="@{/films/{id}/delete(id=${film.id})}"
+                  method="post">
+            <!--
+                Confirmación JavaScript básica
+                antes de enviar el POST de borrado.
+            -->
+            <button type="submit"
+                    onclick="return confirm('¿Seguro que quieres borrar esta película?');">
+                Borrar
+            </button>
+        </form>
+        </div>
+    </li>
+</ul>
+
+<p>
+    <a th:href="@{/films/create}">
+        Crear película
+    </a>
+</p>
+
+<p>
+    <a th:href="@{/artists}">
+        Gestionar artistas
+    </a>
+</p>
+
+</body>
+</html>

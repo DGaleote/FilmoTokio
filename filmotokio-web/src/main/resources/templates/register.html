@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Registro de usuario</title>
+    <meta charset="UTF-8">
+</head>
+
+<style>
+    label {
+        display: inline-block;
+        width: 140px;
+        vertical-align: top;
+    }
+
+    div {
+        margin-bottom: 8px;
+    }
+
+    .error {
+        color: red;
+        margin-left: 8px;
+    }
+</style>
+
+<body>
+
+<h1>Registro de usuario</h1>
+
+<form th:object="${registerUserDTO}" th:action="@{/register}" method="post">
+
+    <div th:if="${#fields.hasGlobalErrors()}">
+        <p class="error" th:each="error : ${#fields.globalErrors()}" th:text="${error}">
+            Error de registro
+        </p>
+    </div>
+
+    <div>
+        <label>Usuario</label>
+        <input type="text" th:field="*{username}">
+        <span class="error"
+              th:if="${#fields.hasErrors('username')}"
+              th:errors="*{username}">
+        </span>
+    </div>
+
+    <div>
+        <label>Email</label>
+        <input type="email" th:field="*{email}">
+        <span class="error"
+              th:if="${#fields.hasErrors('email')}"
+              th:errors="*{email}">
+        </span>
+    </div>
+
+    <div>
+        <label>Nombre</label>
+        <input type="text" th:field="*{name}">
+        <span class="error"
+              th:if="${#fields.hasErrors('name')}"
+              th:errors="*{name}">
+        </span>
+    </div>
+
+    <div>
+        <label>Apellidos</label>
+        <input type="text" th:field="*{surname}">
+        <span class="error"
+              th:if="${#fields.hasErrors('surname')}"
+              th:errors="*{surname}">
+        </span>
+    </div>
+
+    <div>
+        <label>Fecha nacimiento</label>
+        <input type="text" th:field="*{birthDate}" placeholder="dd/MM/yyyy">
+        <span class="error"
+              th:if="${#fields.hasErrors('birthDate')}"
+              th:errors="*{birthDate}">
+        </span>
+    </div>
+
+    <div>
+        <label>Contraseña</label>
+        <input type="password" th:field="*{password}">
+        <span class="error"
+              th:if="${#fields.hasErrors('password')}"
+              th:errors="*{password}">
+        </span>
+    </div>
+
+    <div>
+        <label>Repetir contraseña</label>
+        <input type="password" th:field="*{passwordBis}">
+        <span class="error"
+              th:if="${#fields.hasErrors('passwordBis')}"
+              th:errors="*{passwordBis}">
+        </span>
+    </div>
+
+    <button type="submit">Registrarse</button>
+
+</form>
+
+<a th:href="@{/}">Volver al listado</a>
+
+</body>
+</html>
