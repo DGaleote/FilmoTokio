@@ -4,86 +4,149 @@
 <head>
     <title>Filmotokio</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/filmotokio.css}">
+
+    <link rel="icon"
+          type="image/png"
+          th:href="@{/images/branding/filmotokio-favicon-32.png}">
 </head>
-<body>
-
 
 <body>
 
-<div>
-    <span sec:authorize="isAuthenticated()">
-        Usuario:
-        <strong sec:authentication="name"></strong>
-    </span>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
 
-    <span sec:authorize="isAuthenticated()">
-        |
-        <a th:href="@{/logout}">Cerrar sesión</a>
-    </span>
+        <a class="navbar-brand d-flex align-items-center" th:href="@{/}">
+            <img th:src="@{/images/branding/filmotokio-logo-navbar.png}"
+                 alt="FilmoTokio"
+                 class="navbar-logo">
+        </a>
 
-    <span sec:authorize="!isAuthenticated()">
-        <a th:href="@{/login}">Login</a>
-        |
-        <a th:href="@{/register}">Registro</a>
-    </span>
-</div>
+        <div class="ms-auto d-flex align-items-center gap-3 text-white">
 
-<hr>
+            <span sec:authorize="isAuthenticated()">
+                Hola,
+                <strong sec:authentication="name"></strong>
+            </span>
 
-<h1>Listado de películas</h1>
-<form th:action="@{/}" method="get">
-    <input type="text"
-           name="search"
-           placeholder="Buscar por título">
-
-    <button type="submit">Buscar</button>
-
-    <a th:href="@{/}">Limpiar</a>
-</form>
-<ul>
-    <li th:each="film : ${films}">
-
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-
-        <img th:if="${film.poster != null}"
-             th:src="@{'/posters/' + ${film.poster}}"
-             alt="Poster"
-             width="80">
-
-        <span>
-            <a th:href="@{/films/{id}/view(id=${film.id})}"
-               th:text="${film.title}">
+            <a sec:authorize="!isAuthenticated()"
+               class="btn btn-outline-light btn-sm"
+               th:href="@{/login}">
+                Iniciar sesión
             </a>
-        </span>(<span th:text="${film.year}"></span>)
 
+            <a sec:authorize="!isAuthenticated()"
+               class="btn btn-warning btn-sm"
+               th:href="@{/register}">
+                Registro
+            </a>
 
-            <form sec:authorize="hasRole('ADMIN')"
-                  th:action="@{/films/{id}/delete(id=${film.id})}"
-                  method="post">
-            <!--
-                Confirmación JavaScript básica
-                antes de enviar el POST de borrado.
-            -->
-            <button type="submit"
-                    onclick="return confirm('¿Seguro que quieres borrar esta película?');">
-                Borrar
-            </button>
-        </form>
+            <a sec:authorize="isAuthenticated()"
+               class="btn btn-outline-light btn-sm"
+               th:href="@{/logout}">
+                Cerrar sesión
+            </a>
+
         </div>
-    </li>
-</ul>
+    </div>
+</nav>
 
-<p>
-    <a th:href="@{/films/create}">
-        Crear película
-    </a>
-</p>
+<main class="container py-4">
 
-<p>
-    <a th:href="@{/artists}">
-        Gestionar artistas
-    </a>
-</p>
+    <h1>Listado de películas</h1>
+
+    <form th:action="@{/}" method="get" class="row g-2 mb-4">
+
+        <div class="col-md-6">
+            <input type="text"
+                   name="search"
+                   class="form-control"
+                   placeholder="Buscar por título">
+        </div>
+
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">
+                Buscar
+            </button>
+        </div>
+
+        <div class="col-auto">
+            <a th:href="@{/}" class="btn btn-outline-secondary">
+                Limpiar
+            </a>
+        </div>
+
+    </form>
+
+    <div class="d-flex flex-column gap-3">
+
+        <article class="card shadow-sm border-0"
+                 th:each="film : ${films}">
+
+            <div class="d-flex align-items-stretch">
+
+                <img th:src="${film.poster != null}
+                ? @{'/posters/' + ${film.poster}}
+                : @{/images/branding/filmotokio-poster-placeholder.png}"
+                     class="film-card-poster"
+                     alt="Póster de la película"
+                     onerror="this.onerror=null; this.src='/images/branding/filmotokio-poster-placeholder.png';">
+
+                <div class="card-body d-flex align-items-center justify-content-between gap-3">
+
+                    <div>
+                        <h2 class="h5 card-title mb-2">
+                            <a th:href="@{/films/{id}(id=${film.id})}"
+                               th:text="${film.title}"
+                               class="text-decoration-none">
+                            </a>
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            Año:
+                            <span th:text="${film.year}"></span>
+                        </p>
+                    </div>
+
+                    <form sec:authorize="hasRole('ADMIN')"
+                          th:action="@{/films/{id}/delete(id=${film.id})}"
+                          method="post">
+
+                        <button type="submit"
+                                class="btn btn-outline-danger btn-sm"
+                                onclick="return confirm('¿Seguro que quieres borrar esta película?');">
+                            Borrar
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </article>
+
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+
+        <a th:href="@{/films/create}"
+           class="btn btn-primary">
+            Crear película
+        </a>
+
+        <a th:href="@{/artists}"
+           class="btn btn-outline-secondary">
+            Gestionar artistas
+        </a>
+
+    </div>
+
+</main>
 
 </body>
 </html>

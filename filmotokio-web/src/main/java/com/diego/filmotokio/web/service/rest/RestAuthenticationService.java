@@ -9,6 +9,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Base64;
 
 @Service
@@ -23,7 +24,17 @@ public class RestAuthenticationService {
     @Value("${filmotokio.rest.client.password}")
     private String clientPassword;
 
+    private String cachedAccessToken;
+    private Instant cachedAccessTokenExpiresAt;
+
     public String getAccessToken() {
+
+        if (cachedAccessToken != null
+                && cachedAccessTokenExpiresAt != null
+                && Instant.now().isBefore(cachedAccessTokenExpiresAt)) {
+            return cachedAccessToken;
+        }
+
         String url = restBaseUrl + "/authenticate";
 
         HttpHeaders headers = new HttpHeaders();
@@ -50,7 +61,10 @@ public class RestAuthenticationService {
             throw new IllegalStateException("No se pudo obtener token del servicio REST");
         }
 
-        return authenticationResponse.getAccessToken();
+        cachedAccessToken = authenticationResponse.getAccessToken();
+        cachedAccessTokenExpiresAt = Instant.now().plusSeconds(authenticationResponse.getExpiresIn() - 30);
+
+        return cachedAccessToken;
     }
 
     private String buildBasicAuthorizationHeader() {

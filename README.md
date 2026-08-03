@@ -105,11 +105,39 @@ También se pueden editar directamente los `application.properties` para una eje
 
 ## Credenciales y placeholders
 
-El repositorio no incluye credenciales reales.
+El repositorio no incluye credenciales reales de producción.
 
-Valores como `change_me`, `change_me_admin` o `change_me_super_secret_key` son placeholders de desarrollo. Deben sustituirse mediante variables de entorno o configuración local antes de ejecutar el proyecto en otro entorno.
+Valores como `change_me` o `change_me_super_secret_key` son placeholders de desarrollo. Deben sustituirse mediante variables de entorno o configuración local antes de ejecutar el proyecto en otro entorno.
 
-El usuario administrador inicial se crea desde `InitialDataLoader` si no existe ya un usuario `admin`. La contraseña incluida es de desarrollo y debe cambiarse para cualquier uso real.
+### Administrador inicial
+
+En el primer arranque, `InitialDataLoader` crea automáticamente un usuario administrador si todavía no existe el nombre de usuario configurado.
+
+Los datos iniciales se encuentran en:
+
+```text
+filmotokio-web/src/main/resources/application.properties
+```
+
+Valores por defecto:
+
+```properties
+filmotokio.admin.username=admin
+filmotokio.admin.password=Admin2026!
+filmotokio.admin.email=admin@filmotokio.local
+filmotokio.admin.name=Administrador
+filmotokio.admin.surname=FilmoTokio
+filmotokio.admin.birth-date=1970-01-01
+```
+
+Para probar la aplicación como administrador:
+
+- Usuario: `admin`
+- Contraseña: `Admin2026!`
+
+Estos valores pueden cambiarse antes del primer arranque sin modificar el código Java. Son credenciales de demostración académica y no deben utilizarse así en producción.
+
+Los usuarios estándar se crean desde la opción de registro de la aplicación (`/register`).
 
 ## Orden de arranque recomendado
 

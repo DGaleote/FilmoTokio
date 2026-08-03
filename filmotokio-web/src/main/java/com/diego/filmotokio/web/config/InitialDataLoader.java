@@ -5,6 +5,7 @@ import com.diego.filmotokio.common.model.Role;
 import com.diego.filmotokio.web.repository.AppUserRepository;
 import com.diego.filmotokio.web.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -24,36 +25,59 @@ public class InitialDataLoader implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${filmotokio.admin.username}")
+    private String adminUsername;
+
+    @Value("${filmotokio.admin.password}")
+    private String adminPassword;
+
+    @Value("${filmotokio.admin.email}")
+    private String adminEmail;
+
+    @Value("${filmotokio.admin.name}")
+    private String adminName;
+
+    @Value("${filmotokio.admin.surname}")
+    private String adminSurname;
+
+    @Value("${filmotokio.admin.birth-date}")
+    private LocalDate adminBirthDate;
+
     @Override
     public void run(String... args) {
+        Role userRole = getOrCreateRole(ROLE_USER);
+        Role adminRole = getOrCreateRole(ROLE_ADMIN);
 
-        Role userRole = roleRepository.findByName(ROLE_USER)
-                .orElseGet(() -> createRole(ROLE_USER));
+        createAdminIfMissing(userRole, adminRole);
+    }
 
-        Role adminRole = roleRepository.findByName(ROLE_ADMIN)
-                .orElseGet(() -> createRole(ROLE_ADMIN));
-
-        if (!appUserRepository.existsByUsername("admin")) {
-            AppUser admin = new AppUser();
-
-            admin.setUsername("admin");
-            admin.setEmail("admin@filmotokio.local");
-            admin.setName("Administrador");
-            admin.setSurname("FilmoTokio");
-            admin.setPassword(passwordEncoder.encode("change_me_admin"));
-            admin.setBirthDate(LocalDate.of(1970, 1, 1));
-            admin.setCreatedAt(LocalDateTime.now());
-            admin.setRoles(List.of(userRole, adminRole));
-
-            appUserRepository.save(admin);
-        }
+    private Role getOrCreateRole(String roleName) {
+        return roleRepository.findByName(roleName)
+                .orElseGet(() -> createRole(roleName));
     }
 
     private Role createRole(String roleName) {
-
         Role role = new Role();
         role.setName(roleName);
 
         return roleRepository.save(role);
+    }
+
+    private void createAdminIfMissing(Role userRole, Role adminRole) {
+        if (appUserRepository.existsByUsername(adminUsername)) {
+            return;
+        }
+
+        AppUser admin = new AppUser();
+        admin.setUsername(adminUsername);
+        admin.setPassword(passwordEncoder.encode(adminPassword));
+        admin.setEmail(adminEmail);
+        admin.setName(adminName);
+        admin.setSurname(adminSurname);
+        admin.setBirthDate(adminBirthDate);
+        admin.setCreatedAt(LocalDateTime.now());
+        admin.setRoles(List.of(userRole, adminRole));
+
+        appUserRepository.save(admin);
     }
 }

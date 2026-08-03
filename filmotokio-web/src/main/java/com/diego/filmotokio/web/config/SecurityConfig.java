@@ -19,7 +19,14 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers(
+                                "/login",
+                                "/register",
+                                "/css/**",
+                                "/posters/**",
+                                "/favicon.ico",
+                                "/images/**"
+                        ).permitAll()
 
                         .requestMatchers(
                                 "/films/*/edit",

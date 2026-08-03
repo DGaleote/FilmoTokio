@@ -1,5 +1,6 @@
 package com.diego.filmotokio.web.mvc;
 
+import com.diego.filmotokio.common.dto.FilmDetailDTO;
 import com.diego.filmotokio.common.model.AppUser;
 import com.diego.filmotokio.common.model.ArtistType;
 import com.diego.filmotokio.common.model.Film;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,6 +37,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FilmViewController {
 
+    private static final Logger log = LoggerFactory.getLogger(FilmViewController.class);
     private static final long MAX_POSTER_SIZE_BYTES = 2 * 1024 * 1024;
 
     private final FilmService filmService;
@@ -44,18 +48,23 @@ public class FilmViewController {
     @Value("${filmotokio.uploads.posters}")
     private String postersPath;
 
-    @GetMapping("/")
+    @GetMapping({"/", "/films"})
     public String home(@RequestParam(value = "search", required = false) String search, Model model) {
+
+        log.info("Loading film list. Search: {}", search);
+
         if (search != null && !search.isBlank()) {
             model.addAttribute("films", filmService.searchFilmSummariesByTitle(search));
         } else {
             model.addAttribute("films", filmService.getFilmSummaries());
         }
+
         return "film-list";
     }
 
-    @GetMapping("/films/{id}/view")
+    @GetMapping("/films/{id}")
     public String filmDetail(@PathVariable("id") Long id, Model model) {
+        log.info("Loading film detail. Film id: {}", id);
         model.addAttribute("film", filmService.getFilmDetail(id));
 
         try {
@@ -75,6 +84,11 @@ public class FilmViewController {
             model.addAttribute("ratingsAvailable", true);
 
         } catch (RestClientException e) {
+
+            log.warn("Ratings service unavailable while loading film detail. Film id: {}. Reason: {}",
+                    id,
+                    e.getMessage());
+
             model.addAttribute("ratingsAvailable", false);
             model.addAttribute("userRating", null);
         }
@@ -100,6 +114,16 @@ public class FilmViewController {
         return "film-create";
     }
 
+//    @GetMapping("/films/{id}")
+//    public String filmDetail(@PathVariable("id") Long id, Model model) {
+//
+//        FilmDetailDTO film = filmService.getFilmDetail(id);
+//
+//        model.addAttribute("film", film);
+//
+//        return "film-detail";
+//    }
+
     @PostMapping("/films/create")
     public String createFilm(
             @Valid Film film,
@@ -121,6 +145,11 @@ public class FilmViewController {
      */
         if (result.hasErrors()) {
 
+            log.warn("Film form validation failed. Film id: {}, title: {}, errors: {}",
+                    film.getId(),
+                    film.getTitle(),
+                    result.getErrorCount());
+
             loadFilmFormData(model);
 
             return "film-create";
@@ -132,6 +161,11 @@ public class FilmViewController {
             }
         } catch (IllegalArgumentException e) {
 
+            log.warn("Invalid poster for film id: {}, title: {}. Reason: {}",
+                    film.getId(),
+                    film.getTitle(),
+                    e.getMessage());
+
             result.rejectValue("poster", "poster.invalid", e.getMessage());
 
             restoreExistingPosterIfEditing(film);
@@ -140,6 +174,11 @@ public class FilmViewController {
             return "film-create";
 
         } catch (IOException e) {
+
+            log.error("Could not save poster for film id: {}, title: {}",
+                    film.getId(),
+                    film.getTitle(),
+                    e);
 
             result.rejectValue("poster", "poster.saveError", "No se pudo guardar el poster");
 
@@ -155,9 +194,13 @@ public class FilmViewController {
      */
         preserveExistingPosterIfNeeded(film, posterFile);
 
+        log.info("Processing film form. Film id: {}, title: {}", film.getId(), film.getTitle());
+
         filmService.save(film);
 
-        return "redirect:/";
+        log.info("Film saved successfully. Film id: {}, title: {}", film.getId(), film.getTitle());
+
+        return "redirect:/films";
     }
 
     private void preserveExistingPosterIfNeeded(Film film, MultipartFile posterFile) {
@@ -178,9 +221,21 @@ public class FilmViewController {
     @PostMapping("/films/{id}/delete")
     public String deleteFilm(@PathVariable("id") Long id) {
 
-        filmService.deleteById(id);
+        log.info("Deleting film. Film id: {}", id);
 
-        return "redirect:/";
+        try {
+            filmService.deleteById(id);
+
+            log.info("Film deleted successfully. Film id: {}", id);
+
+            return "redirect:/films";
+
+        } catch (RuntimeException e) {
+
+            log.error("Could not delete film. Film id: {}", id, e);
+
+            throw e;
+        }
     }
 
     private void loadFilmFormData(Model model) {
@@ -266,13 +321,23 @@ public class FilmViewController {
 
         AppUser currentUser = appUserService.findByUsername(username);
 
+        log.info("Creating rating. Film id: {}, user id: {}, score: {}",
+                id,
+                currentUser.getId(),
+                score);
+
         ratingRestClient.createRating(
                 id,
                 currentUser.getId(),
                 score
         );
 
-        return "redirect:/films/" + id + "/view";
+        log.info("Rating created successfully. Film id: {}, user id: {}, score: {}",
+                id,
+                currentUser.getId(),
+                score);
+
+        return "redirect:/films/" + id;
     }
 
 }
