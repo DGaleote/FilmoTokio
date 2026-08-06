@@ -13,6 +13,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.stream.Collectors;
 import java.util.Map;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
@@ -60,6 +62,36 @@ public class RestExceptionHandler {
                 HttpStatus.BAD_REQUEST,
                 "Validation Error",
                 message
+        );
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    public Map<String, Object> handleUnsupportedMediaType(
+            HttpMediaTypeNotSupportedException e) {
+
+        log.warn("REST unsupported media type. Content type: {}",
+                e.getContentType());
+
+        return buildErrorResponse(
+                HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+                "Unsupported Media Type",
+                "El formato de contenido enviado no está soportado"
+        );
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, Object> handleNoResourceFound(
+            NoResourceFoundException e) {
+
+        log.warn("REST resource not found. Path: {}",
+                e.getResourcePath());
+
+        return buildErrorResponse(
+                HttpStatus.NOT_FOUND,
+                "Not Found",
+                "El recurso solicitado no existe"
         );
     }
 

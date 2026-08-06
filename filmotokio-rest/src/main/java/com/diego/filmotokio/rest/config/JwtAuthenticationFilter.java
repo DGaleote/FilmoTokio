@@ -55,7 +55,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         } catch (JWTVerificationException exception) {
             SecurityContextHolder.clearContext();
-            response.sendError(HttpStatus.UNAUTHORIZED.value());
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("""
+        {
+          "status": 401,
+          "error": "Unauthorized",
+          "message": "Token inválido o caducado"
+        }
+        """);
         }
     }
 }

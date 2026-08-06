@@ -1,36 +1,39 @@
 # FilmoTokio
 
-Proyecto Java / Spring Boot multimódulo para gestión de películas, artistas, usuarios, valoraciones REST y exportación Batch incremental.
+Proyecto Java / Spring Boot multimódulo para la gestión de películas, artistas, usuarios, valoraciones REST y exportación Batch incremental.
 
 ## Descripción
 
 FilmoTokio es una aplicación desarrollada con Spring Boot y Maven multimódulo. El proyecto combina:
 
-* Aplicación WEB MVC con Thymeleaf.
-* Seguridad WEB con usuarios y roles.
-* API REST independiente para valoraciones.
-* Seguridad REST con JWT.
-* Integración WEB ↔ REST.
-* Proceso Batch incremental para exportar películas a CSV.
-* Persistencia con MySQL/MariaDB y JPA.
+- Aplicación WEB MVC con Thymeleaf.
+- Seguridad WEB con usuarios y roles.
+- API REST independiente para valoraciones.
+- Seguridad REST mediante JWT.
+- Integración WEB ↔ REST.
+- Proceso Batch incremental para exportar películas a CSV.
+- Persistencia con MySQL y JPA.
+- Configuración centralizada y portable.
 
 ## Tecnologías principales
 
-* Java 21
-* Spring Boot
-* Spring MVC / Thymeleaf
-* Spring Security
-* Spring Data JPA / Hibernate
-* Spring Batch
-* MySQL / MariaDB
-* Maven
-* Lombok
-* JWT
+- Java 21
+- Spring Boot
+- Spring MVC / Thymeleaf
+- Spring Security
+- Spring Data JPA / Hibernate
+- Spring Batch
+- MySQL 8.x
+- Maven
+- Lombok
+- JWT
 
 ## Estructura del proyecto
 
 ```text
 FilmoTokio/
+├── config/
+│   └── application.properties
 ├── filmotokio-common/
 ├── filmotokio-web/
 ├── filmotokio-rest/
@@ -43,20 +46,20 @@ FilmoTokio/
 
 ### Módulos
 
-* `filmotokio-common`: entidades y DTOs compartidos.
-* `filmotokio-web`: aplicación web MVC.
-* `filmotokio-rest`: API REST de valoraciones.
-* `filmotokio-batch`: proceso Batch de exportación incremental.
+- `filmotokio-common`: entidades y DTO compartidos.
+- `filmotokio-web`: aplicación web MVC.
+- `filmotokio-rest`: API REST de valoraciones.
+- `filmotokio-batch`: proceso Batch de exportación incremental.
 
 ## Requisitos previos
 
 Para ejecutar el proyecto es necesario disponer de:
 
-* Java 21.
-* Maven.
-* MySQL 8.x o MariaDB.
-* Una base de datos llamada `filmotokio`.
-* Un usuario MySQL con permisos de lectura, escritura y creación/actualización de tablas.
+- Java 21.
+- Maven.
+- MySQL 8.x.
+- Una base de datos llamada `filmotokio`.
+- Un usuario MySQL con permisos de lectura, escritura y creación/actualización de tablas.
 
 SQL inicial recomendado:
 
@@ -68,134 +71,225 @@ COLLATE utf8mb4_unicode_ci;
 
 El proyecto no incluye una base de datos embebida. Las tablas se crean o actualizan mediante Hibernate y Spring Batch.
 
-## Configuración
+## Configuración centralizada
 
-Los módulos que acceden a base de datos tienen su propio `application.properties`:
-
-* `filmotokio-web/src/main/resources/application.properties`
-* `filmotokio-rest/src/main/resources/application.properties`
-* `filmotokio-batch/src/main/resources/application.properties`
-
-La conexión se configura mediante variables de entorno con valores por defecto:
-
-```properties
-spring.datasource.url=${FILMOTOKIO_DB_URL:jdbc:mysql://localhost:3306/filmotokio}
-spring.datasource.username=${FILMOTOKIO_DB_USER:root}
-spring.datasource.password=${FILMOTOKIO_DB_PASSWORD:change_me}
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-```
-
-Variables principales:
-
-* `FILMOTOKIO_DB_URL`
-* `FILMOTOKIO_DB_USER`
-* `FILMOTOKIO_DB_PASSWORD`
-* `FILMOTOKIO_REST_CLIENT_PASSWORD`
-* `FILMOTOKIO_JWT_SECRET`
-
-Ejemplo en PowerShell:
-
-```powershell
-$env:FILMOTOKIO_DB_PASSWORD="tu_password_mysql"
-$env:FILMOTOKIO_REST_CLIENT_PASSWORD="tu_password_cliente_rest"
-$env:FILMOTOKIO_JWT_SECRET="una_clave_larga_y_segura"
-```
-
-También se pueden editar directamente los `application.properties` para una ejecución local sencilla.
-
-## Credenciales y placeholders
-
-El repositorio no incluye credenciales reales de producción.
-
-Valores como `change_me` o `change_me_super_secret_key` son placeholders de desarrollo. Deben sustituirse mediante variables de entorno o configuración local antes de ejecutar el proyecto en otro entorno.
-
-### Administrador inicial
-
-En el primer arranque, `InitialDataLoader` crea automáticamente un usuario administrador si todavía no existe el nombre de usuario configurado.
-
-Los datos iniciales se encuentran en:
+Toda la configuración editable del proyecto se encuentra en un único archivo:
 
 ```text
-filmotokio-web/src/main/resources/application.properties
+config/application.properties
 ```
+
+Los `application.properties` internos de cada módulo contienen únicamente la configuración técnica necesaria para traducir esos valores a Spring Boot.
+
+Para que los tres módulos encuentren correctamente el archivo central y las rutas relativas, deben ejecutarse tomando como directorio de trabajo la raíz del proyecto:
+
+```text
+FilmoTokio/
+```
+
+En IntelliJ IDEA puede utilizarse:
+
+```text
+$PROJECT_DIR$
+```
+
+### Base de datos
 
 Valores por defecto:
 
 ```properties
-filmotokio.admin.username=admin
-filmotokio.admin.password=Admin2026!
-filmotokio.admin.email=admin@filmotokio.local
-filmotokio.admin.name=Administrador
-filmotokio.admin.surname=FilmoTokio
-filmotokio.admin.birth-date=1970-01-01
+filmotokio.config.db.host=${FILMOTOKIO_DB_HOST:localhost}
+filmotokio.config.db.port=${FILMOTOKIO_DB_PORT:3306}
+filmotokio.config.db.name=${FILMOTOKIO_DB_NAME:filmotokio}
+filmotokio.config.db.username=${FILMOTOKIO_DB_USER:root}
+filmotokio.config.db.password=${FILMOTOKIO_DB_PASSWORD:root123}
 ```
 
-Para probar la aplicación como administrador:
+Para ejecutar el proyecto en otro equipo, normalmente basta con revisar estos cinco valores en `config/application.properties`:
 
-- Usuario: `admin`
-- Contraseña: `Admin2026!`
+- host;
+- puerto;
+- nombre de la base de datos;
+- usuario;
+- contraseña.
 
-Estos valores pueden cambiarse antes del primer arranque sin modificar el código Java. Son credenciales de demostración académica y no deben utilizarse así en producción.
+El valor situado después de `:` es el utilizado por defecto. Por ejemplo:
 
-Los usuarios estándar se crean desde la opción de registro de la aplicación (`/register`).
+```properties
+filmotokio.config.db.password=${FILMOTOKIO_DB_PASSWORD:root123}
+```
+
+utiliza `root123` mientras no exista una variable de entorno llamada `FILMOTOKIO_DB_PASSWORD`.
+
+
+
+
+
+
+
+### Puertos
+
+```properties
+filmotokio.config.web.port=${FILMOTOKIO_WEB_PORT:8080}
+filmotokio.config.rest.port=${FILMOTOKIO_REST_PORT:8081}
+```
+
+
+
+
+
+
+### Comunicación WEB → REST
+
+```properties
+filmotokio.config.rest.host=${FILMOTOKIO_REST_HOST:localhost}
+filmotokio.rest.client.username=${FILMOTOKIO_REST_CLIENT_USERNAME:filmotokio-web}
+filmotokio.rest.client.password=${FILMOTOKIO_REST_CLIENT_PASSWORD:RestClient2026!}
+```
+
+
+
+
+
+
+
+### Seguridad JWT
+
+```properties
+filmotokio.rest.jwt.secret=${FILMOTOKIO_JWT_SECRET:FilmoTokioJwtSecret2026_DevelopmentOnly}
+filmotokio.rest.jwt.expiration-seconds=${FILMOTOKIO_JWT_EXPIRATION_SECONDS:3600}
+```
+
+
+
+
+
+
+### Archivos
+
+```properties
+filmotokio.uploads.posters=${FILMOTOKIO_POSTERS_DIRECTORY:uploads/posters}
+filmotokio.batch.export.directory=${FILMOTOKIO_BATCH_EXPORT_DIRECTORY:filmotokio-batch/exports}
+
+spring.servlet.multipart.max-file-size=${FILMOTOKIO_UPLOAD_MAX_FILE_SIZE:5MB}
+spring.servlet.multipart.max-request-size=${FILMOTOKIO_UPLOAD_MAX_REQUEST_SIZE:5MB}
+```
+
+Las rutas son relativas a la raíz del proyecto.
+
+
+
+
+
+
+
+
+La validación funcional de pósteres limita las imágenes a 2 MB.
+
+### Administrador inicial
+
+El administrador inicial se crea automáticamente durante el primer arranque de WEB si todavía no existe un usuario con el nombre configurado.
+
+```properties
+filmotokio.admin.username=${FILMOTOKIO_ADMIN_USERNAME:admin}
+filmotokio.admin.password=${FILMOTOKIO_ADMIN_PASSWORD:Admin2026!}
+filmotokio.admin.email=${FILMOTOKIO_ADMIN_EMAIL:admin@filmotokio.local}
+filmotokio.admin.name=${FILMOTOKIO_ADMIN_NAME:Administrador}
+filmotokio.admin.surname=${FILMOTOKIO_ADMIN_SURNAME:FilmoTokio}
+filmotokio.admin.birth-date=${FILMOTOKIO_ADMIN_BIRTH_DATE:1970-01-01}
+```
+
+Credenciales de demostración:
+
+```text
+Usuario: admin
+Contraseña: Admin2026!
+```
+
+Estos valores están destinados al entorno académico/local y pueden cambiarse antes del primer arranque mediante el archivo central o variables de entorno.
+
+Los usuarios estándar se crean desde `/register`.
+
+## Variables de entorno
+
+De forma opcional, los valores del archivo central pueden sobrescribirse mediante variables de entorno.
+
+No es el método principal de configuración ni es necesario para una ejecución local o académica. Se mantiene únicamente como alternativa para otros entornos.
+
+Ejemplo:
+
+```powershell
+$env:FILMOTOKIO_DB_PASSWORD="otra_password"
+```
+
+## Compilación
+
+Desde la raíz del proyecto:
+
+```powershell
+mvn clean verify
+```
+
+o:
+
+```powershell
+mvn clean install
+```
 
 ## Orden de arranque recomendado
 
-1. Arrancar MySQL/MariaDB.
-2. Crear la base de datos `filmotokio` si no existe.
-3. Arrancar `filmotokio-rest`.
-4. Arrancar `filmotokio-web`.
-5. Acceder a la WEB en:
+1. Iniciar MySQL.
+2. Crear la base de datos `filmotokio` si todavía no existe.
+3. Revisar `config/application.properties`.
+4. Arrancar `filmotokio-rest`.
+5. Arrancar `filmotokio-web`.
+6. Acceder a `http://localhost:8080`.
+7. Ejecutar `filmotokio-batch` cuando se quiera lanzar la exportación incremental.
 
-```text
-http://localhost:8080
-```
+Para crear artistas o películas solo es necesario arrancar WEB.
 
-6. Ejecutar `filmotokio-batch` cuando se quiera lanzar la exportación incremental.
-
-Para crear artistas o películas solo es necesario arrancar `filmotokio-web`.
-
-Para que la ficha de película muestre valoraciones, debe estar arrancado `filmotokio-rest`. Si REST no está disponible, la WEB muestra un mensaje controlado y el resto de datos de la película sigue funcionando.
+Para consultar o enviar valoraciones desde una ficha de película deben estar arrancados WEB y REST. Si REST no está disponible, WEB muestra un aviso controlado y el resto de la ficha continúa funcionando.
 
 ## Módulo WEB
 
 El módulo `filmotokio-web` permite:
 
-* Registro y login de usuarios.
-* Gestión de roles `USER` y `ADMIN`.
-* CRUD de artistas.
-* CRUD de películas.
-* Subida y visualización de posters.
-* Listado y búsqueda de películas.
-* Detalle de película.
-* Consulta y envío de valoraciones mediante el REST.
+- Registro y login de usuarios.
+- Gestión de roles `USER` y `ADMIN`.
+- Listado y consulta de artistas.
+- Listado, búsqueda y consulta de películas.
+- Creación de artistas y películas por usuarios autenticados.
+- Edición y eliminación por administradores.
+- Subida y visualización de pósteres.
+- Consulta y envío de valoraciones a través del servicio REST.
 
-Rutas públicas:
+### Rutas públicas
 
-* `/login`
-* `/register`
+- `/login`
+- `/register`
 
-Rutas de administración protegidas por rol `ADMIN`:
+### Permisos
 
-* edición y borrado de películas;
-* edición y borrado de artistas.
+- `USER`: puede consultar, crear artistas y crear películas.
+- `ADMIN`: puede consultar, crear, editar y eliminar artistas y películas.
 
-## Gestión de posters
+## Gestión de pósteres
 
-Los posters se guardan físicamente en:
+Los pósteres se guardan físicamente en:
 
-```properties
-filmotokio.uploads.posters=uploads/posters
+```text
+uploads/posters
 ```
 
 Reglas principales:
 
-* Poster obligatorio al crear película.
-* Poster opcional al editar.
-* Si al editar no se sube poster nuevo, se conserva el anterior.
-* Tamaño máximo funcional: 2 MB.
-* Formatos permitidos: JPG/JPEG, PNG y WEBP.
-* En base de datos se guarda solo el nombre del archivo.
+- Póster obligatorio al crear una película.
+- Póster opcional al editar.
+- Si no se sube un póster nuevo al editar, se conserva el anterior.
+- Tamaño máximo funcional: 2 MB.
+- Formatos permitidos: JPG/JPEG, PNG y WEBP.
+- En la base de datos se guarda únicamente el nombre del archivo.
+- Si la imagen falta o no puede cargarse, se muestra un placeholder.
 
 ## Módulo REST
 
@@ -203,8 +297,8 @@ El módulo `filmotokio-rest` expone la API de valoraciones.
 
 Puerto por defecto:
 
-```properties
-server.port=8081
+```text
+8081
 ```
 
 Endpoints principales:
@@ -216,11 +310,9 @@ GET /ratings/films/{filmId}/users/{userId}
 GET /ratings-average/films/{filmId}
 ```
 
-El endpoint `/authenticate` permite obtener un JWT mediante Client Credentials. El resto de endpoints están protegidos y requieren Bearer Token.
+### Autenticación
 
-## Seguridad REST / JWT
-
-La WEB solicita un token al REST usando:
+Solicitud:
 
 ```http
 POST /authenticate
@@ -230,7 +322,7 @@ Authorization: Basic <credenciales_base64>
 grant_type=client_credentials
 ```
 
-Respuesta esperada:
+Respuesta:
 
 ```json
 {
@@ -240,20 +332,37 @@ Respuesta esperada:
 }
 ```
 
-Después, la WEB usa el token para consultar medias, consultar valoración propia y crear nuevas valoraciones.
+El resto de endpoints requieren:
+
+```http
+Authorization: Bearer <token>
+```
+
+La WEB reutiliza el token mientras siga siendo válido, evitando solicitar uno nuevo para cada operación.
+
+### Errores REST
+
+El servicio devuelve respuestas JSON controladas para:
+
+- peticiones inválidas;
+- validaciones;
+- recursos inexistentes;
+- `Content-Type` no soportado;
+- ausencia de autenticación;
+- token inválido o caducado;
+- errores internos inesperados.
 
 ## Integración WEB ↔ REST
 
-La WEB no almacena directamente las valoraciones. Esa responsabilidad pertenece al módulo REST.
+WEB no almacena directamente las valoraciones. Esa responsabilidad pertenece al módulo REST.
 
-En la ficha de película, la WEB consulta:
+En la ficha de una película, WEB puede:
 
-* valoración media;
-* valoración propia del usuario autenticado.
+- consultar la valoración media;
+- consultar la valoración del usuario autenticado;
+- enviar una nueva valoración.
 
-Si el usuario no ha votado, se muestra formulario de valoración.
-
-Si el REST está apagado o no responde, la ficha muestra un mensaje controlado y no se produce Whitelabel.
+La contraseña del cliente REST debe coincidir para WEB y REST. Al estar centralizada, ambos módulos leen el mismo valor desde `config/application.properties`.
 
 ## Módulo Batch
 
@@ -261,77 +370,152 @@ El módulo `filmotokio-batch` exporta películas a CSV de forma incremental.
 
 Funcionamiento:
 
-1. Busca películas cuyo `id` no aparezca en `film_export`.
+1. Busca películas cuyo `id` todavía no aparece en `film_export`.
 2. Genera un CSV asociado al `jobId` de Spring Batch.
 3. Registra cada película exportada en `film_export`.
-4. En ejecuciones posteriores, esas películas no vuelven a exportarse.
+4. En ejecuciones posteriores no vuelve a exportar las mismas películas.
 
-Archivo generado:
+Carpeta de salida:
 
 ```text
-filmotokio-batch/exports/films-export-job-{jobId}.csv
+filmotokio-batch/exports
 ```
 
-Ejemplo de CSV:
+Nombre de archivo:
 
-```csv
-filmId,title,releaseYear
-15,Prueba Pelicula Batch,2026
+```text
+films-export-job-{jobId}.csv
 ```
 
-Propiedad relevante:
+Si no existen películas pendientes, el job termina en `COMPLETED` sin generar un CSV nuevo.
 
-```properties
-spring.batch.job.enabled=false
+### Formato CSV
+
+El writer:
+
+- elimina espacios iniciales y finales;
+- escapa comillas dobles;
+- encierra entre comillas los campos que contienen comas, comillas o saltos de línea.
+
+Esto evita que títulos con caracteres especiales rompan el CSV.
+
+## Ejecución desde IntelliJ IDEA
+
+Crear o revisar una configuración de ejecución para cada aplicación:
+
+- `FilmotokioRestApplication`
+- `FilmotokioWebApplication`
+- `FilmotokioBatchApplication`
+
+En las tres configuraciones:
+
+```text
+Working directory: $PROJECT_DIR$
 ```
-
-El job se lanza mediante un runner propio con parámetro `startedAt`, evitando repetir una ejecución ya completada con los mismos parámetros.
-
-## Notas sobre CSV
-
-El writer del Batch protege los títulos exportados:
-
-* elimina espacios iniciales/finales con `strip()`;
-* escapa comillas dobles;
-* encierra entre comillas campos con comas, comillas o saltos de línea.
-
-Esto evita que títulos como `Matrix, Reloaded` rompan el formato CSV.
-
-## Ejecución rápida
-
-Desde la raíz del proyecto:
-
-```powershell
-mvn clean install
-```
-
-Después arrancar los módulos desde el IDE o mediante Maven según el módulo que se quiera probar.
 
 Orden recomendado:
 
 ```text
-1. filmotokio-rest
-2. filmotokio-web
-3. filmotokio-batch cuando se quiera exportar
+1. FilmotokioRestApplication
+2. FilmotokioWebApplication
+3. FilmotokioBatchApplication cuando se quiera exportar
 ```
 
-## Comprobaciones habituales
+## Comprobaciones rápidas
 
-Si algo no arranca, revisar:
+### WEB
 
-1. MySQL/MariaDB está iniciado.
-2. Existe la base de datos `filmotokio`.
-3. Usuario y contraseña de base de datos son correctos.
-4. Los puertos `8080` y `8081` están libres.
-5. Las variables de entorno no están sobrescribiendo una configuración correcta.
-6. REST está arrancado si se quieren probar valoraciones desde la WEB.
+- Abre `http://localhost:8080`.
+- Muestra la página de login.
+- Permite entrar con `admin / Admin2026!`.
+- Carga el listado de películas y sus pósteres.
+
+### REST
+
+En el log debe aparecer:
+
+```text
+Tomcat started on port 8081
+Started FilmotokioRestApplication
+```
+
+### WEB ↔ REST
+
+Entra en una ficha de película y comprueba que:
+
+- aparece la media de valoraciones;
+- puede guardarse una valoración;
+- la valoración propia se muestra después de guardarla.
+
+### BATCH
+
+En el log debe aparecer:
+
+```text
+status: [COMPLETED]
+```
+
+Si no hay películas pendientes, no debe generarse un CSV nuevo.
+
+## Resolución de problemas
+
+### MySQL rechaza la conexión
+
+Buscar al final del log:
+
+```text
+Access denied for user
+```
+
+Revisar:
+
+- `filmotokio.config.db.username`
+- `filmotokio.config.db.password`
+- posibles variables de entorno que estén sobrescribiendo los valores.
+
+### WEB no muestra los pósteres
+
+Comprobar:
+
+```properties
+filmotokio.uploads.posters=uploads/posters
+```
+
+y verificar que el directorio de trabajo sea la raíz del proyecto.
+
+### WEB no puede consultar valoraciones
+
+Comprobar:
+
+1. REST está arrancado en el host y puerto configurados.
+2. WEB y REST leen la misma contraseña del cliente.
+3. No existe una variable de entorno antigua sobrescribiendo la configuración central.
+
+### Puerto ocupado
+
+Modificar en `config/application.properties`:
+
+```properties
+filmotokio.config.web.port=8080
+filmotokio.config.rest.port=8081
+```
+
+o utilizar las variables de entorno correspondientes.
+
+## Valores de desarrollo
+
+El repositorio incluye valores funcionales para facilitar la evaluación académica y el arranque local.
+
+No son credenciales de producción. Para otro entorno deben sustituirse mediante variables de entorno o una configuración externa segura.
 
 ## Estado del proyecto
 
 Proyecto funcional para demostración académica y portfolio:
 
-* WEB MVC con seguridad y roles.
-* REST de valoraciones protegidas con JWT.
-* Integración WEB ↔ REST.
-* Batch incremental a CSV.
-* Configuración portable mediante properties y variables de entorno.
+- WEB MVC con seguridad y roles.
+- REST de valoraciones protegido con JWT.
+- Integración WEB ↔ REST.
+- Gestión robusta de errores.
+- Batch incremental a CSV.
+- Configuración centralizada y portable.
+- Interfaz renovada y navegación completa.
