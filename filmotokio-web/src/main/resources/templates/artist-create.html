@@ -4,9 +4,9 @@
 
 <head>
     <title th:text="${artist.id == null
-            ? 'Crear artista | FilmoTokio'
+            ? 'Añadir artista | FilmoTokio'
             : 'Editar artista | FilmoTokio'}">
-        Crear artista | FilmoTokio
+        Añadir artista | FilmoTokio
     </title>
 
     <meta charset="UTF-8">
@@ -26,42 +26,7 @@
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-
-        <a class="navbar-brand d-flex align-items-center"
-           th:href="@{/films}">
-
-            <img th:src="@{/images/branding/filmotokio-logo-navbar.png}"
-                 alt="FilmoTokio"
-                 class="navbar-logo">
-        </a>
-
-        <div class="d-flex align-items-center gap-3 ms-auto"
-             sec:authorize="isAuthenticated()">
-
-            <span class="text-muted">
-                Hola,
-                <strong class="text-light"
-                        sec:authentication="name">
-                    usuario
-                </strong>
-            </span>
-
-            <form th:action="@{/logout}"
-                  method="post"
-                  class="m-0">
-
-                <button type="submit"
-                        class="btn btn-outline-light btn-sm">
-                    Cerrar sesión
-                </button>
-            </form>
-
-        </div>
-
-    </div>
-</nav>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="container py-5">
 
@@ -75,9 +40,9 @@
 
                     <h1 class="mb-2"
                         th:text="${artist.id == null
-                            ? 'Crear artista'
+                            ? 'Añadir artista'
                             : 'Editar artista'}">
-                        Crear artista
+                        Añadir artista
                     </h1>
 
                     <p class="text-muted mb-4"
@@ -176,23 +141,27 @@
 
                         </div>
 
-                        <div class="d-flex flex-column flex-sm-row gap-2">
+                        <div class="d-flex flex-column flex-sm-row
+                                    justify-content-end gap-2">
+
+                            <a th:href="@{/artists}"
+                               class="btn btn-outline-light"
+                               th:text="${artist.id == null
+                                    ? 'Cancelar'
+                                    : 'Volver a artistas'}">
+                                Cancelar
+                            </a>
 
                             <button type="submit"
                                     class="btn btn-primary">
 
                                 <span th:text="${artist.id == null
-                                        ? 'Crear artista'
+                                        ? 'Añadir'
                                         : 'Guardar cambios'}">
-                                    Crear artista
+                                    Añadir
                                 </span>
 
                             </button>
-
-                            <a th:href="@{/artists}"
-                               class="btn btn-outline-light">
-                                Volver a artistas
-                            </a>
 
                         </div>
 

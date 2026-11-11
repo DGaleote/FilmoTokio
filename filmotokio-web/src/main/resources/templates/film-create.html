@@ -3,8 +3,8 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
-    <title th:text="${film.id == null ? 'Crear película | FilmoTokio' : 'Editar película | FilmoTokio'}">
-        Crear película | FilmoTokio
+    <title th:text="${film.id == null ? 'Añadir película | FilmoTokio' : 'Editar película | FilmoTokio'}">
+        Añadir película | FilmoTokio
     </title>
 
     <meta charset="UTF-8">
@@ -23,32 +23,7 @@
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-
-        <a class="navbar-brand d-flex align-items-center"
-           th:href="@{/films}">
-            <img th:src="@{/images/branding/filmotokio-logo-navbar.png}"
-                 alt="FilmoTokio"
-                 class="navbar-logo">
-        </a>
-
-        <div class="ms-auto d-flex align-items-center gap-3"
-             sec:authorize="isAuthenticated()">
-
-            <span class="text-muted d-none d-sm-inline">
-                Hola, <strong class="text-light" sec:authentication="name">usuario</strong>
-            </span>
-
-            <form th:action="@{/logout}" method="post" class="m-0">
-                <button type="submit" class="btn btn-outline-light btn-sm">
-                    Cerrar sesión
-                </button>
-            </form>
-        </div>
-
-    </div>
-</nav>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="container py-5">
 
@@ -57,8 +32,8 @@
 
             <div class="mb-4">
                 <h1 class="mb-2"
-                    th:text="${film.id == null ? 'Crear película' : 'Editar película'}">
-                    Crear película
+                    th:text="${film.id == null ? 'Añadir película' : 'Editar película'}">
+                    Añadir película
                 </h1>
 
                 <p class="text-muted mb-0"
@@ -85,6 +60,7 @@
                        th:text="${error}">
                         No se ha podido guardar la película.
                     </p>
+
                 </div>
 
                 <div class="row g-4">
@@ -223,10 +199,6 @@
                                  th:errors="*{poster}">
                             </div>
 
-                            <div class="invalid-feedback d-block"
-                                 th:if="${#fields.hasErrors('poster')}"
-                                 th:errors="*{poster}">
-                            </div>
                         </div>
 
                     </div>
@@ -242,8 +214,8 @@
                     </a>
 
                     <button type="submit" class="btn btn-primary px-4">
-                        <span th:text="${film.id == null ? 'Crear película' : 'Guardar cambios'}">
-                            Crear película
+                        <span th:text="${film.id == null ? 'Añadir' : 'Guardar cambios'}">
+                            Añadir
                         </span>
                     </button>
 
@@ -258,37 +230,37 @@
 
 <script>
     const posterFileInput = document.getElementById("posterFile");
-   const posterPreview = document.getElementById("posterPreview");
-   const MAX_POSTER_SIZE = 2 * 1024 * 1024;
+    const posterPreview = document.getElementById("posterPreview");
+    const MAX_POSTER_SIZE = 2 * 1024 * 1024;
 
-   posterFileInput.addEventListener("change", function () {
-       const file = posterFileInput.files[0];
+    posterFileInput.addEventListener("change", function () {
+        const file = posterFileInput.files[0];
 
-       if (!file) {
-           return;
-       }
+        if (!file) {
+            return;
+        }
 
-       if (file.size > MAX_POSTER_SIZE) {
-           alert("El póster no puede superar los 2 MB.");
+        if (file.size > MAX_POSTER_SIZE) {
+            alert("El póster no puede superar los 2 MB.");
 
-           posterFileInput.value = "";
+            posterFileInput.value = "";
 
-           if (posterPreview) {
-               posterPreview.src =
-                   "/images/branding/filmotokio-poster-placeholder.png";
-           }
+            if (posterPreview) {
+                posterPreview.src =
+                    "/images/branding/filmotokio-poster-placeholder.png";
+            }
 
-           return;
-       }
+            return;
+        }
 
-       if (!file.type.startsWith("image/")) {
-           return;
-       }
+        if (!file.type.startsWith("image/")) {
+            return;
+        }
 
-       if (posterPreview) {
-           posterPreview.src = URL.createObjectURL(file);
-       }
-   });
+        if (posterPreview) {
+            posterPreview.src = URL.createObjectURL(file);
+        }
+    });
 </script>
 
 </body>

@@ -11,9 +11,13 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
 public class FilmExportJobConfig {
+
+    @Value("${filmotokio.batch.chunk-size}")
+    private int chunkSize;
 
     @Bean
     public Job filmExportJob(
@@ -32,7 +36,7 @@ public class FilmExportJobConfig {
             FilmCsvWriter writer) {
 
         return new StepBuilder("filmExportStep", jobRepository)
-                .<Film, Film>chunk(100, transactionManager)
+                .<Film, Film>chunk(chunkSize, transactionManager)
                 .reader(reader)
                 .writer(writer)
                 .build();

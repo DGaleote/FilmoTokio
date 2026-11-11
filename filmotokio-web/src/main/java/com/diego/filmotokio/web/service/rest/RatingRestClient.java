@@ -3,6 +3,7 @@ package com.diego.filmotokio.web.service.rest;
 import com.diego.filmotokio.web.dto.rest.CreateRatingRequest;
 import com.diego.filmotokio.web.dto.rest.RatingAverageResponse;
 import com.diego.filmotokio.web.dto.rest.RatingResponse;
+import com.diego.filmotokio.web.exception.RatingAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -87,12 +88,17 @@ public class RatingRestClient {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                request,
-                Void.class
-        );
+        try {
+            restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    request,
+                    Void.class
+            );
+
+        } catch (HttpClientErrorException.Conflict exception) {
+            throw new RatingAlreadyExistsException();
+        }
     }
 
 

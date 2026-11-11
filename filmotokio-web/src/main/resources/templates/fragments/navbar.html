@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<body>
+
+<nav th:fragment="navbar"
+     class="navbar navbar-expand-lg navbar-dark bg-dark">
+
+    <div class="container">
+
+        <a class="navbar-brand d-flex align-items-center"
+           th:href="@{/films}">
+
+            <img th:src="@{/images/branding/filmotokio-logo-navbar.png}"
+                 alt="FilmoTokio"
+                 class="navbar-logo">
+        </a>
+
+        <div class="navbar-nav me-auto">
+
+            <a class="nav-link"
+               th:href="@{/films}">
+                Películas
+            </a>
+
+            <a class="nav-link"
+               th:href="@{/artists}">
+                Artistas
+            </a>
+
+        </div>
+
+        <div class="ms-auto d-flex align-items-center gap-3 text-white">
+
+            <span sec:authorize="isAuthenticated()">
+                Hola,
+                <strong sec:authentication="name"></strong>
+            </span>
+
+            <a sec:authorize="!isAuthenticated()"
+               class="btn btn-outline-light btn-sm"
+               th:href="@{/login}">
+                Iniciar sesión
+            </a>
+
+            <a sec:authorize="!isAuthenticated()"
+               class="btn btn-warning btn-sm"
+               th:href="@{/register}">
+                Registro
+            </a>
+
+            <a sec:authorize="isAuthenticated()"
+               class="btn btn-outline-light btn-sm"
+               th:href="@{/logout}">
+                Cerrar sesión
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+</body>
+</html>

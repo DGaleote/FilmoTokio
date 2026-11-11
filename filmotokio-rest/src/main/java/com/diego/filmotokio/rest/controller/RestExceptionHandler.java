@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.stream.Collectors;
 import java.util.Map;
@@ -92,6 +93,20 @@ public class RestExceptionHandler {
                 HttpStatus.NOT_FOUND,
                 "Not Found",
                 "El recurso solicitado no existe"
+        );
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, Object> handleDataIntegrityViolation(
+            DataIntegrityViolationException e) {
+
+        log.warn("REST data integrity violation. Reason: {}", e.getMessage());
+
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                "Conflict",
+                "El usuario ya ha valorado esta película"
         );
     }
 

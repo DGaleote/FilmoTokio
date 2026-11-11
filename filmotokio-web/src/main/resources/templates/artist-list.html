@@ -22,64 +22,68 @@
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-        <a class="navbar-brand d-flex align-items-center"
-           th:href="@{/films}">
-            <img th:src="@{/images/branding/filmotokio-logo-navbar.png}"
-                 alt="FilmoTokio"
-                 class="navbar-logo">
+
+<!--<nav class="navbar navbar-expand-lg navbar-dark">-->
+<!--    <div class="container">-->
+
+<!--        <a class="navbar-brand d-flex align-items-center"-->
+<!--           th:href="@{/films}">-->
+<!--            <img th:src="@{/images/branding/filmotokio-logo-navbar.png}"-->
+<!--                 alt="FilmoTokio"-->
+<!--                 class="navbar-logo">-->
+<!--        </a>-->
+
+<!--        <div class="d-flex align-items-center gap-3 ms-auto"-->
+<!--             sec:authorize="isAuthenticated()">-->
+
+<!--            <span class="text-muted">-->
+<!--                Hola,-->
+<!--                <strong class="text-light"-->
+<!--                        sec:authentication="name">-->
+<!--                    usuario-->
+<!--                </strong>-->
+<!--            </span>-->
+
+<!--            <form th:action="@{/logout}"-->
+<!--                  method="post"-->
+<!--                  class="m-0">-->
+<!--                <button type="submit"-->
+<!--                        class="btn btn-outline-light btn-sm">-->
+<!--                    Cerrar sesión-->
+<!--                </button>-->
+<!--            </form>-->
+
+<!--        </div>-->
+
+<!--    </div>-->
+<!--</nav>-->
+
+<main class="container py-4">
+
+    <div class="d-flex flex-column flex-md-row
+                justify-content-between align-items-md-center
+                gap-3 mb-3">
+
+        <h1 class="mb-0">
+            Artistas
+        </h1>
+
+        <a th:href="@{/artists/create}"
+           class="btn btn-primary btn-lg">
+            Añadir
         </a>
 
-        <div class="d-flex align-items-center gap-3 ms-auto"
-             sec:authorize="isAuthenticated()">
-
-            <span class="text-muted">
-                Hola,
-                <strong class="text-light"
-                        sec:authentication="name">
-                    usuario
-                </strong>
-            </span>
-
-            <form th:action="@{/logout}"
-                  method="post"
-                  class="m-0">
-                <button type="submit"
-                        class="btn btn-outline-light btn-sm">
-                    Cerrar sesión
-                </button>
-            </form>
-
-        </div>
-
     </div>
-</nav>
 
-<main class="container py-5">
+    <p class="text-muted mb-4">
+        Gestiona los directores y actores disponibles en FilmoTokio.
+    </p>
 
     <section class="card border-0 shadow">
 
         <div class="card-body p-4 p-md-5">
-
-            <div class="d-flex flex-column flex-md-row
-                        justify-content-between align-items-md-center
-                        gap-3 mb-4">
-
-                <div>
-                    <h1 class="mb-2">Artistas</h1>
-                    <p class="text-muted mb-0">
-                        Gestiona los directores y actores disponibles en FilmoTokio.
-                    </p>
-                </div>
-
-                <a th:href="@{/artists/create}"
-                   class="btn btn-primary">
-                    Crear artista
-                </a>
-
-            </div>
 
             <div class="alert alert-secondary"
                  th:if="${#lists.isEmpty(artists)}">
@@ -155,15 +159,6 @@
                     </tbody>
 
                 </table>
-
-            </div>
-
-            <div class="mt-4">
-
-                <a th:href="@{/films}"
-                   class="btn btn-outline-light">
-                    Volver a películas
-                </a>
 
             </div>
 

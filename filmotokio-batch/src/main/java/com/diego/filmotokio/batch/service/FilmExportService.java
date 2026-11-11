@@ -6,6 +6,8 @@ import com.diego.filmotokio.batch.repository.FilmRepository;
 import com.diego.filmotokio.common.model.Film;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,8 +19,13 @@ public class FilmExportService {
     private final FilmRepository filmRepository;
     private final FilmExportRepository filmExportRepository;
 
-    public List<Film> findFilmsPendingExport() {
-        return filmRepository.findFilmsPendingExport();
+    public List<Film> findFilmsPendingExport(Long lastId, int pageSize) {
+        Pageable pageable = PageRequest.of(0, pageSize);
+
+        return filmRepository.findFilmsPendingExportAfterId(
+                lastId,
+                pageable
+        );
     }
 
     public void markFilmsAsExported(List<Film> films, Long jobId) {
